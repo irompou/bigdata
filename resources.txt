@@ -1,0 +1,70 @@
+
+1. Dataset
+-----------
+Stackoverflow Data Dump [https://archive.org/details/stackexchange]
+  - Statistics ~ 160MB (~900MB decompressed) [https://archive.org/download/stackexchange/stats.stackexchange.com.7z]
+  - DBA ~ 100MB (~600MB decompressed) [https://archive.org/download/stackexchange/dba.stackexchange.com.7z]
+  - Data Science ~ 4.5MB (~25MB decompressed) [https://archive.org/download/stackexchange/datascience.stackexchange.com.7z]
+
+Data Schema
+  - Detailed Schema [http://meta.stackexchange.com/questions/2677/database-schema-documentation-for-the-public-data-dump-and-sede]
+  - 7 XML Files
+    * Users.xml (+)
+    * Posts.xml (+)
+    * Tags.xml (+)
+    * Votes.xml (+)
+    * Badges.xml (+)
+    * Comments.xml (?)
+    * PostLinks.xml
+    * PostHistory.xml 
+
+
+2. Data Cleaning
+-----------------
+Keep only the following data:
+  * Users.xml (+)
+  * Posts.xml (+)
+  * Tags.xml (+)
+  * Votes.xml (+)
+  * Badges.xml (+)
+  * Comments.xml (?)
+
+ 
+3. Database Import
+-------------------
+
+PostgreSQL or MSSQL
+
+
+4. Cubes/Dimensions (OLAP)
+---------------------------
+
+PostgreSQL
+  - Pentaho
+	* Kettle (ETL)
+    * Mondrian (OLAP) [http://mondrian.pentaho.com/documentation]
+	
+or
+
+MSSQL
+  - SSAS
+  
+
+5. Simple MDX and Drilldowns
+-----------------------------
+
+...
+
+
+6. Advanced Analysis
+---------------------
+
+  - Categorization
+  - Regression
+  - Clustering
+ 
+
+7. MapReduce Jobs
+------------------
+
+  - Hadoop & Spark! :)
