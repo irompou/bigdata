@@ -94,5 +94,27 @@ SELECT
     ref.value('@CommunityOwnedDate', 'datetime')    
 FROM @xmlData.nodes('//posts/row') xmlData(ref);
 
--- Enable the identity insert safety now that we're finished 
-SET IDENTITY_INSERT posts OFF;
+
+
+
+-- Comments
+SET @xmlData = (
+  SELECT * FROM OPENROWSET (
+    BULK 'C:\install\so_data\Comments.xml', SINGLE_BLOB
+  ) AS xmlData
+);
+
+INSERT INTO comments(id, post_id, score, creation_date, 
+    user_display_name, user_id)
+SELECT 
+    ref.value('@Id', 'int'),
+    ref.value('@PostId', 'int'),
+    ref.value('@Score', 'int'),
+    ref.value('@Text', 'nvarchar(max)'),
+    ref.value('@CreationDate', 'datetime'),
+    ref.value('@UserDisplayName', 'nvarchar(255)'),
+    ref.value('@UserId', 'int')    
+FROM @xmlData.nodes('//comments/row') xmlData(ref);
+
+
+

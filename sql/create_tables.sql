@@ -61,3 +61,19 @@ CREATE TABLE posts (
     CONSTRAINT fk_posts_owner_user FOREIGN KEY(owner_user_id) REFERENCES users(id),
     CONSTRAINT fk_posts_last_editor_user FOREIGN KEY(last_editor_user_id) REFERENCES users(id)
 );
+
+
+-- Comments
+CREATE TABLE comments (
+    id INT PRIMARY KEY,
+    post_id INT NOT NULL, -- foreign key
+    score INT,
+    [text] NVARCHAR(MAX), 
+    creation_date DATETIME NOT NULL,
+    user_display_name NVARCHAR(255),
+    user_id INT, -- foreign key
+
+    CONSTRAINT fk_comments_post FOREIGN KEY(post_id) REFERENCES posts(id),
+    CONSTRAINT fk_comments_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
