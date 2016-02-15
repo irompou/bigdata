@@ -1,5 +1,12 @@
 # Big Data Project
 
+## Overview
+This project is part of the 7th semester's course *Business Intelligence and Big Data Analysis* of the *Department of Management Science and Technology* of the *Athens University of Economics and Business*. 
+
+### Students
+- Valerios Chatzigeorgiou (8100167)
+- Ioanna Rompou (8100110)
+
 ## Dataset
 ### [Stackoverflow Data Dump](https://archive.org/details/stackexchange)
 - Statistics ~ 160MB [~900MB decompressed](https://archive.org/download/stackexchange/stats.stackexchange.com.7z)
