@@ -77,3 +77,26 @@ CREATE TABLE comments (
     CONSTRAINT fk_comments_user FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+
+
+
+-- Vote Types
+CREATE TABLE vote_types (
+    id INT PRIMARY KEY,
+    name NVARCHAR(255) NOT NULL    
+);
+
+
+-- Votes
+CREATE TABLE votes (
+    id INT PRIMARY KEY,
+    post_id INT, -- foreign key
+    vote_type_id INT NOT NULL, -- foreign key
+    user_id INT, -- foreign key
+    creation_date DATETIME NOT NULL,
+    bounty_amount INT,
+
+    CONSTRAINT fk_votes_post FOREIGN KEY(post_id) REFERENCES posts(id),
+    CONSTRAINT fk_votes_vote_type FOREIGN KEY(vote_type_id) REFERENCES vote_types(id),
+    CONSTRAINT fk_votes_user FOREIGN KEY(user_id) REFERENCES users(id)
+);

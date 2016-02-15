@@ -118,3 +118,70 @@ FROM @xmlData.nodes('//comments/row') xmlData(ref);
 
 
 
+
+-- Vote Types
+INSERT INTO vote_types(id, name)
+VALUES
+    (1, 'AcceptedByOriginator'),
+    (2, 'UpMod'),
+    (3, 'DownMod'),
+    (4, 'Offensive'),
+    (5, 'Favorite'),
+    (6, 'Close'),
+    (7, 'Reopen'),
+    (8, 'BountyStart'),
+    (9, 'BountyClose'),
+    (10, 'Deletion'),
+    (11, 'Undeletion'),
+    (12, 'Spam'),
+    (15, 'ModeratorReview'),
+    (16, 'ApproveEditSuggestion');
+
+-- Votes
+
+
+-- Create a temporary table without constraints to just insert the data
+CREATE TABLE #temp_votes (
+    id INT PRIMARY KEY,
+    post_id INT, -- foreign key
+    vote_type_id INT NOT NULL, -- foreign key
+    user_id INT, -- foreign key
+    creation_date DATETIME NOT NULL,
+    bounty_amount INT
+);
+
+SET @xmlData = (
+  SELECT * FROM OPENROWSET (
+    BULK 'C:\install\so_data\Votes.xml', SINGLE_BLOB
+  ) AS xmlData
+);
+
+INSERT INTO #temp_votes(id, post_id, vote_type_id, user_id,
+    creation_date, bounty_amount)
+SELECT 
+    ref.value('@Id', 'int'),
+    ref.value('@PostId', 'int'),
+    ref.value('@VoteTypeId', 'int'),
+    ref.value('@UserId', 'int'),
+    ref.value('@CreationDate', 'DATETIME'),
+    ref.value('@BountyAmount', 'int')
+FROM @xmlData.nodes('//votes/row') xmlData(ref);
+
+
+-- Some of the votes reference non-existent/deleted posts,
+-- so we have to remove them before inserting to the real table
+DELETE #temp_votes
+WHERE 
+    post_id NOT IN (SELECT id from posts);
+
+
+-- Now we can safely insert the curated data to the real table
+INSERT INTO votes(id, post_id, vote_type_id, user_id,
+    creation_date, bounty_amount)
+SELECT 
+    id, post_id, vote_type_id, user_id,
+    creation_date, bounty_amount 
+FROM #temp_votes;
+
+DROP TABLE #temp_votes;
+
