@@ -8,9 +8,6 @@ SET @xmlData = (
   ) AS xmlData
 );
 
--- Disable the identity insert safety to bulk insert
-SET IDENTITY_INSERT tags ON;
-
 INSERT INTO tags(id, name, count)
 SELECT 
   ref.value('@Id', 'int'),
@@ -18,8 +15,6 @@ SELECT
   ref.value('@Count', 'int')
 FROM @xmlData.nodes('//tags/row') xmlData(ref);
 
--- Enable the identity insert safety now that we're finished 
-SET IDENTITY_INSERT tags OFF;
 
 
 
@@ -29,9 +24,6 @@ SET @xmlData = (
     BULK 'C:\install\so_data\Users.xml', SINGLE_BLOB
   ) AS xmlData
 );
-
--- Disable the identity insert safety to bulk insert
-SET IDENTITY_INSERT users ON;
 
 INSERT INTO users(id, reputation, display_name, age, 
     creation_date, last_access_date, website_url, 
@@ -51,14 +43,10 @@ SELECT
     ref.value('@DownVotes', 'int')
 FROM @xmlData.nodes('//users/row') xmlData(ref);
 
--- Enable the identity insert safety now that we're finished 
-SET IDENTITY_INSERT users OFF;
-
 
 
 
 -- Post Types
-SET IDENTITY_INSERT post_types ON;
 INSERT INTO post_types(id, name)
 VALUES
     (1, 'Question'),
@@ -70,17 +58,12 @@ VALUES
     (7, 'WikiPlaceholder'),
     (8, 'PrivilegeWiki');
 
-SET IDENTITY_INSERT post_types OFF;
-
 -- Posts
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
     BULK 'C:\install\so_data\Posts.xml', SINGLE_BLOB
   ) AS xmlData
 );
-
--- Disable the identity insert safety to bulk insert
-SET IDENTITY_INSERT posts ON;
 
 INSERT INTO posts(id, post_type_id, accepted_answer_id, parent_id,
     creation_date, score, view_count, body, owner_user_id,

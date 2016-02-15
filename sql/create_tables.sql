@@ -1,6 +1,6 @@
 -- Tags
 CREATE TABLE tags (
-    id int IDENTITY(1,1) PRIMARY KEY,
+    id int PRIMARY KEY,
     name NVARCHAR(255) NOT NULL,
     [count] int
 );
@@ -10,7 +10,7 @@ CREATE UNIQUE NONCLUSTERED INDEX ix_tags_name ON tags(name);
 
 -- Users
 CREATE TABLE users (
-    id int IDENTITY(1,1) PRIMARY KEY,
+    id int PRIMARY KEY,
     reputation int,
     display_name NVARCHAR(255) NOT NULL,
     age int,
@@ -27,13 +27,13 @@ CREATE TABLE users (
 
 -- Post Types
 CREATE TABLE post_types (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    id INT PRIMARY KEY,
     name NVARCHAR(255) NOT NULL
 );
 
 -- Posts
 CREATE TABLE posts (
-    id INT IDENTITY(1,1) PRIMARY KEY,
+    id INT PRIMARY KEY,
     post_type_id INT NOT NULL, -- foreign key
     accepted_answer_id INT, -- foreign key
     parent_id int, -- foreign key
