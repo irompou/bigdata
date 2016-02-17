@@ -80,14 +80,14 @@ detailed schema of the dump is available in a [meta.stackexchange.com post.](htt
 The data dumps consist of 8 XML files containing organized data of various 
 entities that make up a Stackexchange site:
 
-- Users.xml
-- Posts.xml
-- Tags.xml
-- Comments.xml
-- Votes.xml
-- Badges.xml
-- PostLinks.xml
-- PostHistory.xml
+- **Users.xml:** The actual users that are registered under a certain StackExchange website. This includes info like their Reputation on the website, Location(not strictly described), Age and an 'About Me' text.
+- **Posts.xml:** In a StackExchange website, a post can be a Question, an Answer, a Wiki (site-related informational "article"), and a number of other things related to the organization of the website. The Posts data is obviously the most *heavy* from an informational point of view and gives us a great variety of attributes to explore and analyze.
+- **Tags.xml:** Each Question Post is accompanied by one or more tags, that the author adds in order to "categorize" his document in a helpful way. The only available "data" for this entity is the total count of Posts related to each tag.
+- **Comments.xml:** Users can comment on any Post, and share their thoughts about the posted content.
+- **Votes.xml:** Everything on StackExchange can be voted on by its users. Votes are mainly anonymous, except for some extreme cases. 
+- **Badges.xml:** Users earn badges based on their different "achievements" on the website. The most common Badges are Bronze, Silver and Gold medals, which are based on the helpfulness and total contribution of a user for the Questions, Answers or Comments that he has posted.
+- **PostLinks.xml:** Certain Posts get *logically* linked because of various organizational reasons. For example duplicate or off-topic questions receive these kind of "links".
+- **PostHistory.xml:** Users have the ability to edit the content that they have posted, for various reasons. Questions or Answers may need to be "updated" because of a change in requirements or circumstances of the problem, and users have the ability to do so freely.
 
 ## 2. ETL
 For the extraction, transformation and loading of the data we are going to use 
@@ -120,18 +120,17 @@ files.  The `tmp` folder is also kept around with the downloaded files.
 Our untouched dataset currently is in the perfect state to be imported/loaded to
 an RDBMS that supports insertion of data from parsed XML files. Dates are 
 represented in the ISO-8601 format, all numeric types are of type integer, 
-the files are UTF-8 encode, and long text values (such as question bodies) 
+the files are UTF-8 encoded, and long text values (such as question bodies) 
 are already represented as processed HTML.  The only *choice* we currently have 
-is to only select the data that we are interested in.
+is to select the data that we are interested in.
 
-We have chosen to use the following data entities from our dataset:
+We have chosen only certain entities to store in our *Data Warehouse*, in order to emulate the process of mining data from multiple sources. These entites are:
 
 - Users
 - Posts
 - Comments
 - Votes
 - Tags
-- Badges
 
 This means that we are only going to use the respective XML files only.
 
@@ -154,13 +153,13 @@ data, and the tables that are going to be used.
 
 - [Stackoverflow Question 1](http://stackoverflow.com/questions/3989395/convert-xml-to-table-sql-server)
 - [Stackoverflow Question 2](http://stackoverflow.com/questions/7649301/select-data-from-xml-file-as-table-in-tsql)
-- [MSDN Documentation](http://msdn.microsoft.com)
+- [MSDN Documentation](https://msdn.microsoft.com/en-us/library/ms191184.aspx)
 
 We have carefully designed and described the tables that we are going to use 
 in the [create_tables.sql](./sql/create_tables.sql) file.
 
 For the import process we have implemented all the necessary steps in the 
-[import.sql](./sql/import.sql) file.
+[import.sql](./sql/import.sql) file. 
 
 ##### Temp Tables
 One brief note that should be mentioned here, is that in order to import such 
