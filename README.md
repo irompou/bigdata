@@ -34,7 +34,11 @@ packages/programs/runtimes installed:
 - Oracle's VirtualBox with the following VMs setup:
   * Microsoft Windows Server 2012 w/ SQL Server 2012 Standard Edition installed
     (or any other edition that supports SSAS)
-  * Some Linux distribution running a Hadoop cluster
+  * Some Linux distribution running a Hadoop cluster 
+
+
+*Note: We're probably going to play it safe here and install Hadoop on the same VM that we're running our SQL Server on, aka 'Hadoop on Windows'. In case we manage to setup everything and feel comfortable with moving on, we may even setup Hadoop on some kind of cloud service (probably a small AWS EC2 instance). We're not trying to get you people pumped up or anything though, so take everything we say with a grain of salt...*
+
 
 To build everything, `git clone` or download and extract a ZIP of the repository
 in a folder and try to follow along the steps described below.  This is not 
