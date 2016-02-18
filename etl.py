@@ -1,61 +1,39 @@
-import os
+from os import path
 import sys
 import errno
 import subprocess
 
-from collections import defaultdict
-
 import click
 
-SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
+from util import which
 
-DATA_DIR = os.path.join(SCRIPT_DIR, 'data')
-TEMP_DIR = os.path.join(SCRIPT_DIR, 'tmp')
-
-xml_files = {}
-xml_files['users'] = os.path.join(DATA_DIR, 'Users.xml')
-xml_files['posts'] = os.path.join(DATA_DIR, 'Posts.xml')
-xml_files['tags'] = os.path.join(DATA_DIR, 'Tags.xml')
-xml_files['comments'] = os.path.join(DATA_DIR, 'Comments.xml')
-xml_files['votes'] = os.path.join(DATA_DIR, 'Votes.xml')
-xml_files['badges'] = os.path.join(DATA_DIR, 'Badges.xml')
-
-
-def which(program):
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            path = path.strip('"')
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
-
-
+SCRIPT_DIR = path.dirname(path.realpath(__file__))
+DATA_DIR = path.join(SCRIPT_DIR, 'data')
 SQLCMD = which('SQLCMD.exe')
+DEFAULT_DB_NAME = 'big_data_dmst'
+
+CREATE_DB_QUERY = path.join(SCRIPT_DIR, 'sql/create_db.sql')
+CREATE_SCHEMA_QUERY = path.join(SCRIPT_DIR, 'sql/create_tables.sql')
+IMPORT_QUERY = path.join(SCRIPT_DIR, 'sql/import.sql')
 
 
-def exec_sql_query(server, query_path, params=None):
+def exec_sql_query(server, db='', query_path=None, params=None):
     """ Executes the passed query file and returns results as a list """
     with open(query_path, 'r') as fin:
         query = fin.read()
 
     envargs = ''
     if params and len(params):
-        # params = defaultdict(str, params)
         var_pairs = ' '.join([
             '='.join((k, '"%s"' % str(v)))
             for k, v in params.items()])
         envargs = '-v ' + var_pairs
-    cmd = SQLCMD + ' -h-1 -E -S {server} {envargs} -Q "{query}"'.format(
-        server=server, envargs=envargs, query=query)
+
+    if len(db):
+        db = '-d ' + db
+
+    cmd = SQLCMD + ' -h-1 -E -S {server} {db} {envargs} -Q "{query}"'
+    cmd = cmd.format(server=server, db=db, envargs=envargs, query=query)
     cmd_result = subprocess.check_output(cmd)
     if cmd_result:
         return [d.strip().decode('utf-8')
@@ -95,18 +73,25 @@ def show_sql_servers_info():
         return
 
 
+def create_database(server, db_name):
+    if exec_sql_query(server=server, query_path=CREATE_DB_QUERY,
+                      params={'db_name': db_name}):
+        click.echo('Database "{0}" created'.format(db_name))
+
+
+def create_schema(server, db):
+    if exec_sql_query(server=server, db=db, query_path=CREATE_SCHEMA_QUERY):
+        click.echo('Schema on "{0}" created'.format(db))
+
+
+def import_data_job(server, db, xml_path):
+    if exec_sql_query(server=server, db=db,
+                      query_path=IMPORT_QUERY, params={'xml_path': xml_path}):
+        click.echo('Schema on "{0}" created'.format(db))
+
+
 @click.group()
 def cli():
-    pass
-
-
-@cli.command()
-def extract():
-    pass
-
-
-@cli.command()
-def transform():
     pass
 
 
@@ -114,18 +99,30 @@ def transform():
 @click.option('server', '--server', '-s',
               help='URL of the SQL Server',
               default='localhost')
-@click.option('dbname', '--dbname', '-d',
-              help='Name of the SQL Server database',
-              default='big_data_dmst')
+@click.option('db', '--db', '-d',
+              help='Name of the SQL Server database.'
+                   'If the database is not found, it\'s created automaticaly',
+              default=DEFAULT_DB_NAME)
+@click.option('import_data', '--import', '-i',
+              help='Import dir of the data to the database',
+              default=DATA_DIR)
 @click.option('list_info', '--list', '-l',
               help='List the available SQL Servers and Databases',
               is_flag=True, default=False)
-@click.option('create_schema', '--create-schema', '-c',
-              help='Only create the schema on the SQL Server',
+@click.option('create', '--create', '-c',
+              help='Create the schema on the SQL Server',
               is_flag=True, default=False)
-def load(server, dbname, list_info, create_schema):
+def load(server, db, list_info, create_schema, create_database, import_data):
     if list_info:
         show_sql_servers_info()
+    if create_schema:
+        if db not in get_databases(server):
+            create_database()
+        create_schema(server, db)
+
+    if import_data:
+        import_data_job(server, db, import_data)
+
 
 if __name__ == '__main__':
     if not SQLCMD:
