@@ -26,8 +26,8 @@ SET @xmlData = (
 );
 
 INSERT INTO users(id, reputation, display_name, age, 
-    creation_date, last_access_date, website_url, 
-    [location], about_me, views, upvotes, downvotes)
+                  creation_date, last_access_date, website_url, 
+                  [location], about_me, views, upvotes, downvotes)
 SELECT 
     ref.value('@Id', 'int'), 
     ref.value('@Reputation', 'int'), 
@@ -66,10 +66,11 @@ SET @xmlData = (
 );
 
 INSERT INTO posts(id, post_type_id, accepted_answer_id, parent_id,
-    creation_date, score, view_count, body, owner_user_id,
-    owner_display_name, last_editor_user_id, last_editor_display_name,
-    last_edit_date, last_activity_date, title, tags, answer_count,
-    comment_count, favorite_count, closed_date, community_owned_date)
+                  creation_date, score, view_count, body, owner_user_id,
+                  owner_display_name, last_editor_user_id, 
+                  last_editor_display_name, last_edit_date, last_activity_date, 
+                  title, tags, answer_count, comment_count, favorite_count, 
+                  closed_date, community_owned_date)
 SELECT 
     ref.value('@Id', 'int'),
     ref.value('@PostTypeId', 'int'),
@@ -104,8 +105,8 @@ SET @xmlData = (
   ) AS xmlData
 );
 
-INSERT INTO comments(id, post_id, score, creation_date, 
-    user_display_name, user_id)
+INSERT INTO comments(id, post_id, score, text creation_date, 
+                     user_display_name, user_id)
 SELECT 
     ref.value('@Id', 'int'),
     ref.value('@PostId', 'int'),
@@ -157,7 +158,7 @@ SET @xmlData = (
 );
 
 INSERT INTO #temp_votes(id, post_id, vote_type_id, user_id,
-    creation_date, bounty_amount)
+                        creation_date, bounty_amount)
 SELECT 
     ref.value('@Id', 'int'),
     ref.value('@PostId', 'int'),
@@ -177,7 +178,7 @@ WHERE
 
 -- Now we can safely insert the curated data to the real table
 INSERT INTO votes(id, post_id, vote_type_id, user_id,
-    creation_date, bounty_amount)
+                  creation_date, bounty_amount)
 SELECT 
     id, post_id, vote_type_id, user_id,
     creation_date, bounty_amount 
