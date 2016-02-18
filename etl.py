@@ -40,22 +40,46 @@ def which(program):
 SQLCMD = which('SQLCMD.exe')
 
 
+def exec_sql_query(query, params):
+    pass
+
+
 def get_sql_servers():
-    result = subprocess.check_output(SQLCMD + " -L")
-    if result:
+    cmd = SQLCMD + " -L"
+    cmd_result = subprocess.check_output(cmd)
+    if cmd_result:
         clean_result = ([line.strip().decode('utf-8')
-                         for line in result.splitlines() if len(line.strip())])
+                         for line in cmd_result.splitlines()
+                         if len(line.strip())])
+
         # First line of the result is a silly 'Server:' text
-        server_list = clean_result[1:]
-        return sorted(server_list)
+        servers = clean_result[1:]
+        return servers
 
 
-def show_sql_servers():
+def get_databases(server):
+    with open('sql/list_db.sql', 'r') as fin:
+        query = fin.read()
+    cmd = SQLCMD + ' -h-1 -E -S {0} -Q "{1}"'.format(server, query)
+    cmd_result = subprocess.check_output(cmd)
+    if cmd_result:
+        return [d.strip().decode('utf-8')
+                for d in cmd_result.splitlines()
+                if len(d.strip())]
+
+
+def get_sql_server_info():
+    return {s: get_databases(s) for s in get_sql_servers()}
+
+
+def show_sql_servers_info():
     click.echo('Listing SQL Servers, please wait...')
-    servers = get_sql_servers()
+    servers = get_sql_server_info()
     click.echo('Available SQL Servers:\n')
-    for i, s in enumerate(servers, start=1):
-        click.echo('\t{0} - {1}'.format(i, s))
+    for i, server in enumerate(servers, start=1):
+        click.echo('\t{0} - {1}'.format(i, server))
+        for j, db in enumerate(servers[server], start=1):
+            click.echo('\t\t{0} - {1}'.format(j, db))
         return
 
 
@@ -78,16 +102,18 @@ def transform():
 @click.option('server', '--server', '-s',
               help='URL of the SQL Server',
               default='localhost')
-@click.option('list_servers', '--list-servers', '-l',
-              help='List the available SQL Servers',
-              is_flag=True, default=False)
 @click.option('dbname', '--dbname', '-d',
               help='Name of the SQL Server database',
               default='big_data_dmst')
-def load(server, dbname, list_servers):
-    if list_servers:
-        show_sql_servers()
-
+@click.option('list_info', '--list', '-l',
+              help='List the available SQL Servers and Databases',
+              is_flag=True, default=False)
+@click.option('create_schema', '--create-schema', '-c',
+              help='Only create the schema on the SQL Server',
+              is_flag=True, default=False)
+def load(server, dbname, list_info, create_schema):
+    if list_info:
+        show_sql_servers_info()
 
 if __name__ == '__main__':
     if not SQLCMD:
