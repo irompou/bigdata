@@ -40,14 +40,23 @@ def which(program):
 SQLCMD = which('SQLCMD.exe')
 
 
-def list_sql_servers():
+def get_sql_servers():
     result = subprocess.check_output(SQLCMD + " -L")
     if result:
-        clean_result = ([line.strip()
+        clean_result = ([line.strip().decode('utf-8')
                          for line in result.splitlines() if len(line.strip())])
         # First line of the result is a silly 'Server:' text
         server_list = clean_result[1:]
-        return server_list
+        return sorted(server_list)
+
+
+def show_sql_servers():
+    click.echo('Listing SQL Servers, please wait...')
+    servers = get_sql_servers()
+    click.echo('Available SQL Servers:\n')
+    for i, s in enumerate(servers, start=1):
+        click.echo('\t{0} - {1}'.format(i, s))
+        return
 
 
 @click.group()
@@ -77,8 +86,8 @@ def transform():
               default='big_data_dmst')
 def load(server, dbname, list_servers):
     if list_servers:
-        for s in list_sql_servers():
-            click.echo(s)
+        show_sql_servers()
+
 
 if __name__ == '__main__':
     if not SQLCMD:
