@@ -3,6 +3,8 @@ import sys
 import errno
 import subprocess
 
+from collections import defaultdict
+
 import click
 
 SCRIPT_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -40,8 +42,25 @@ def which(program):
 SQLCMD = which('SQLCMD.exe')
 
 
-def exec_sql_query(query, params):
-    pass
+def exec_sql_query(server, query_path, params=None):
+    """ Executes the passed query file and returns results as a list """
+    with open(query_path, 'r') as fin:
+        query = fin.read()
+
+    envargs = ''
+    if params and len(params):
+        # params = defaultdict(str, params)
+        var_pairs = ' '.join([
+            '='.join((k, '"%s"' % str(v)))
+            for k, v in params.items()])
+        envargs = '-v ' + var_pairs
+    cmd = SQLCMD + ' -h-1 -E -S {server} {envargs} -Q "{query}"'.format(
+        server=server, envargs=envargs, query=query)
+    cmd_result = subprocess.check_output(cmd)
+    if cmd_result:
+        return [d.strip().decode('utf-8')
+                for d in cmd_result.splitlines()
+                if len(d.strip())]
 
 
 def get_sql_servers():
@@ -58,14 +77,7 @@ def get_sql_servers():
 
 
 def get_databases(server):
-    with open('sql/list_db.sql', 'r') as fin:
-        query = fin.read()
-    cmd = SQLCMD + ' -h-1 -E -S {0} -Q "{1}"'.format(server, query)
-    cmd_result = subprocess.check_output(cmd)
-    if cmd_result:
-        return [d.strip().decode('utf-8')
-                for d in cmd_result.splitlines()
-                if len(d.strip())]
+    return exec_sql_query(server, 'sql/list_db.sql')
 
 
 def get_sql_server_info():
