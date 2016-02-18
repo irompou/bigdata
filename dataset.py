@@ -3,7 +3,7 @@ import subprocess
 import requests
 import click
 
-from os import path
+from os import path, makedirs
 
 data_urls = {}
 data_urls['stats'] = (r'https://archive.org/download/stackexchange/'
@@ -40,6 +40,8 @@ def download(url, data, outfile):
     if not outfile:
         file_from_url = url.split('/')[-1]
         outfile = path.join(TEMP_DIR, file_from_url)
+
+    makedirs(TEMP_DIR, exist_ok=True)
 
     r = requests.get(url, stream=True)
     total_length = int(r.headers.get('content-length'))
