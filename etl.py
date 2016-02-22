@@ -12,13 +12,23 @@ DATA_DIR = path.join(SCRIPT_DIR, 'data')
 SQLCMD = which('SQLCMD.exe')
 DEFAULT_DB_NAME = 'big_data_dmst'
 
-CREATE_DB_QUERY = path.join(SCRIPT_DIR, 'sql/create_db.sql')
-CREATE_SCHEMA_QUERY = path.join(SCRIPT_DIR, 'sql/create_tables.sql')
-IMPORT_QUERY = path.join(SCRIPT_DIR, 'sql/import.sql')
+CREATE_DB_QUERY = path.join(SCRIPT_DIR, r'sql\create_db.sql')
+CREATE_SCHEMA_QUERY = path.join(SCRIPT_DIR, r'sql\create_tables.sql')
+IMPORT_QUERY = path.join(SCRIPT_DIR, r'sql\import.sql')
+LIST_DB_QUERY = path.join(SCRIPT_DIR, r'sql\list_db.sql')
+
+
+class ConnectionInfo(object):
+    def __init__(self, server, db):
+        self.server = server
+        self.db = db
 
 
 def exec_sql_query(server, db='', query_path=None, params=None):
     """ Executes the passed query file and returns results as a list """
+
+    click.echo('Opening query at {0}'.format(query_path))
+
     with open(query_path, 'r') as fin:
         query = fin.read()
 
@@ -55,7 +65,7 @@ def get_sql_servers():
 
 
 def get_databases(server):
-    return exec_sql_query(server, 'sql/list_db.sql')
+    return exec_sql_query(server=server, db='', query_path=LIST_DB_QUERY)
 
 
 def get_sql_server_info():
@@ -70,7 +80,6 @@ def show_sql_servers_info():
         click.echo('\t{0} - {1}'.format(i, server))
         for j, db in enumerate(servers[server], start=1):
             click.echo('\t\t{0} - {1}'.format(j, db))
-        return
 
 
 def create_database(server, db_name):
@@ -90,38 +99,37 @@ def import_data_job(server, db, xml_path):
         click.echo('Schema on "{0}" created'.format(db))
 
 
-@click.group()
-def cli():
-    pass
-
-
-@cli.command()
+@click.group(chain=True, invoke_without_command=True)
 @click.option('server', '--server', '-s',
               help='URL of the SQL Server',
               default='localhost')
 @click.option('db', '--db', '-d',
-              help='Name of the SQL Server database.'
+              help='Name of the SQL Server database. '
                    'If the database is not found, it\'s created automaticaly',
               default=DEFAULT_DB_NAME)
-@click.option('import_data', '--import', '-i',
-              help='Import dir of the data to the database',
-              default=DATA_DIR)
 @click.option('list_info', '--list', '-l',
               help='List the available SQL Servers and Databases',
               is_flag=True, default=False)
-@click.option('create', '--create', '-c',
-              help='Create the schema on the SQL Server',
-              is_flag=True, default=False)
-def load(server, db, list_info, create_schema, create_database, import_data):
+@click.pass_context
+def cli(ctx, server, db, list_info):
+    ctx.obj = ConnectionInfo(server, db)
     if list_info:
         show_sql_servers_info()
-    if create_schema:
-        if db not in get_databases(server):
-            create_database()
-        create_schema(server, db)
 
-    if import_data:
-        import_data_job(server, db, import_data)
+
+@cli.command()
+@click.pass_obj
+def init(conn):
+    if conn.db not in get_databases(conn.server):
+        create_database()
+    create_schema(conn.server, conn.db)
+
+
+@cli.command(name='import')
+@click.argument('source', default=DATA_DIR)
+@click.pass_obj
+def import_cmd(conn, source):
+    import_data_job(conn.server, conn.db, source)
 
 
 if __name__ == '__main__':
