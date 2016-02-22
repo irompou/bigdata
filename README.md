@@ -207,24 +207,88 @@ Data Mining with MSSQL Analysis Services comes pretty easy, since most of the "d
 ### Decision Trees
 For our dataset we could mine our data to build various decision trees, about the behaviour and events of users and their posts at a StackExchange website.  We are going to examine the decision tree that leads to a Question Post to arrive at the point of having a successful Answer Post. By successful, we mean that a particular Answer has been chosen by the Original Poster of the Question as the *Accepted Answer*.
 
-(Screenshot 1)
-(Screenshot 2)
-(Screenshot 3)
-(Screenshot 4)
-(Screenshot 5)
+#### Screenshots
+
 
 ### Clustering
 StackExchange websites usually have already categorized their users through the process of awarding them with "Badges".  In order to simulate this behaviour we are going to actually data mine the users and try to detect patterns and groups of users based on their popularity and the quality/quantity of their posts, and thus create our own set of "Badges".
 
-(Screenshot 1) 
-(Screenshot 2) 
-(Screenshot 3) 
-(Screenshot 4) 
-(Screenshot 5) 
-
-## 5. MapReduce Jobs
-
-- Hadoop & Spark! :)
+#### Screenshots
 
 
+***
 
+## 5. Hadoop & MapReduce
+
+### Installing Hadoop on Windows 10
+
+![Image 1](media/image1.png)
+Oracle VM VirtualBox Manager - Hortonworks Sandbox with HDP
+
+In order to trasnfer to Hadoop the Dataset that we have chosen, we are going to use [**Apache Sqoop**](http://sqoop.apache.org/), a tool designed for data trasnfers/imports between Hadoop and a RDBMS. Inside the Hadoop VM, we are going to call Sqoop, by entering `sqoop list-databases –connect jdbc:sqlserver://192.168.56.1:1433 --username user --password: pass`
+
+![Image 2](media/image2.png)
+
+After that, through another Sqoop command we perform a bulk-insert of our SQL Server tables, inside HIVE, the RDBMS that Hadoop supports and uses itnernally. 
+
+`sqoop import-all-tables –connect jdbc:sqlserver://192.168.56.1:1433;database=big_data_dmst; –username user --password: pass --hive-import`
+
+![Image 3](media/image3.png)
+
+From now on, since our data is available inside the Hadoop cluster, we can execute MapReduce jobs. We are going to take a look at 2 simple examples that describe what a MapReduce job looks like and how we can run them inside Hadoop and view their results.
+
+### MapReduce Example 1
+
+In this job we are using MapReduce in order tot find all users *over the age of 30* that have *less than 20 "upvotes"*. We're using the 'users' table and the attributes *display_name, age, upvotes*:
+
+```python
+def map(p, r):
+    if r.age > 30:
+        r2 = (r.displayname, r.age)
+        collect (p, r2)
+
+def map(p1, r3):
+    if r3.upvotes < 20:
+        r4 = (r.displayname, r.upvotes)
+        collect(p, r4)
+```
+
+
+| **Age**       | **Upvotes**   |
+|---------------|---------------|
+| ![Image 4](./media/image4.png) | ![Image 5](./media/image5.png) |
+
+### MapReduce Example 2
+
+In this example we are calculating the *sum of user reputation* and the *average views*, showing only users that have a *reputation over 800*. 
+We're using the 'users' table and the attributes *display_name, reputation,views*
+
+```python
+def map(p, r):
+    if r.reputation > 800:
+        r2 = (r.reputation, r.views, r.displayname)
+        collect(r.displayname, r2)
+
+def reduce(n, r2):
+    s = sum(r.reputation for r in r2)
+    avg = float(sum(r.views for r in r2) / len(r2))
+    r2 = (r.displayname, sum, avg)
+    store(n, r2)
+```
+
+![Image 6](media/image6.png)
+
+### LOGS
+> INFO: Map 1: 0/1 Reducer 2: 0/1
+> 
+> INFO: Map 1: 0(+1)/1 Reducer 2: 0/1
+> 
+> INFO: Map 1: 0(+1)/1 Reducer 2: 0/1
+> 
+> INFO: Map 1: 1/1 Reducer 2: 0/1
+> 
+> INFO: Map 1: 1/1 Reducer 2: 0(+1)/1
+> 
+> INFO: Map 1: 1/1 Reducer 2: 1/1
+
+![Image 7](media/image7.png)
