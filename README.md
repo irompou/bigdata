@@ -47,6 +47,10 @@ We assume that all of these scripts/tools are being run from a user that has
 access to the related resources (Databases, Files, Internet Connection, etc.)
 in the system that is being used.
 
+*(We are also using [pandoc](http://pandoc.org/) in order to generate .docx and .pdf forms of this document, as you can see in our [doc_gen.bat](./doc_gen.bat) script)* 
+
+***
+
 ## 1. Dataset Selection/Retrieval
 We are going to use [Stackexchange's annual data dumps](https://archive.org/details/stackexchange) 
 as the Dataset we are going to examine and mine our data from.
@@ -83,6 +87,8 @@ entities that make up a Stackexchange site:
 - **Badges.xml:** Users earn badges based on their different "achievements" on the website. The most common Badges are Bronze, Silver and Gold medals, which are based on the helpfulness and total contribution of a user for the Questions, Answers or Comments that he has posted.
 - **PostLinks.xml:** Certain Posts get *logically* linked because of various organizational reasons. For example duplicate or off-topic questions receive these kind of "links".
 - **PostHistory.xml:** Users have the ability to edit the content that they have posted, for various reasons. Questions or Answers may need to be "updated" because of a change in requirements or circumstances of the problem, and users have the ability to do so freely.
+
+***
 
 ## 2. ETL
 For the extraction, transformation and loading of the data we are going to use 
@@ -186,10 +192,14 @@ Post. We proceeded with deleting these records and then transfering all the
 valid data to the final Votes table.  The temporary votes table was then dropped 
 (although SQL Server is supposed to do so automatically after a while).
 
+***
+
 ## 3. OLAP Cubes
 
 - SSAS Schema/Cubes
 
+
+***
 
 ## 4. Other Big Data Analysis Methods
 Data Mining with MSSQL Analysis Services comes pretty easy, since most of the "dirty" work has already been done by the so-called "Microsoft Data Mining Algorithms", which are actually just implementations of popular and commonly used data mining algorithms, built in the SSAS. We are going to adapt our dataset to various data mining algorithms, and try to extract results and any useful information from them.

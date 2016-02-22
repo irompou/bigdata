@@ -50,3 +50,4 @@ coverage.xml
 # BigData project
 tmp/
 data/
+doc/
