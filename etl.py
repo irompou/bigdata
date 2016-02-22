@@ -93,7 +93,7 @@ def create_schema(server, db):
 
 def import_data_job(server, db, xml_path):
     click.echo('Importing data from {0} on {1}/{2}'.format(
-        server, db, xml_path))
+        xml_path, server, db))
     if exec_sql_query(server=server, db=db,
                       query_path=IMPORT_QUERY, params={'xml_path': xml_path}):
         click.echo('Schema on "{0}" created'.format(db))

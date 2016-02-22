@@ -4,7 +4,7 @@ DECLARE @xmlData XML;
 -- Tags
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
-    BULK 'C:\install\so_data\Tags.xml', SINGLE_CLOB
+    BULK '$(xml_path)\Tags.xml', SINGLE_CLOB
   ) AS xmlData
 );
 
@@ -21,7 +21,7 @@ FROM @xmlData.nodes('//tags/row') xmlData(ref);
 -- Users
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
-    BULK 'C:\install\so_data\Users.xml', SINGLE_BLOB
+    BULK '$(xml_path)\Users.xml', SINGLE_BLOB
   ) AS xmlData
 );
 
@@ -61,7 +61,7 @@ VALUES
 -- Posts
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
-    BULK 'C:\install\so_data\Posts.xml', SINGLE_BLOB
+    BULK '$(xml_path)\Posts.xml', SINGLE_BLOB
   ) AS xmlData
 );
 
@@ -101,7 +101,7 @@ FROM @xmlData.nodes('//posts/row') xmlData(ref);
 -- Comments
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
-    BULK 'C:\install\so_data\Comments.xml', SINGLE_BLOB
+    BULK '$(xml_path)\Comments.xml', SINGLE_BLOB
   ) AS xmlData
 );
 
@@ -153,7 +153,7 @@ CREATE TABLE #temp_votes (
 
 SET @xmlData = (
   SELECT * FROM OPENROWSET (
-    BULK 'C:\install\so_data\Votes.xml', SINGLE_BLOB
+    BULK '$(xml_path)\Votes.xml', SINGLE_BLOB
   ) AS xmlData
 );
 
