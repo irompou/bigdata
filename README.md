@@ -14,9 +14,10 @@ into various steps:
 1. Selection/Retrieval of a large Dataset
 2. ETL actions over this Dataset
 3. OLAP Cubes design and implemention
-4. OLAP Analysis through MDX queryies and other methods
-5. Other Big Data Analysis Methods (Categorization, Regression, Clustering)
-6. MapReduce Jobs
+4. Data Mining
+5. MapReduce Jobs
+
+We have tried to make this document as thorough as possible. Our goal is to make this into some kind of interactive tutorial, that someone can follow and at the same time learn from it about Big Data processing. At some points this will prove to be difficult, especially when we have to deal with heavy GUI procedures and steps (where we will include screenshots), but we will try to make our best efforts to make everything be read just by browsing the code that has been written. This however is a type of work that we are going to continuously tweak and improve in order to reach this a higher level of educational value, which at the same time means that we may end up not finishing every part of it to a satisfactory level.
 
 ### Students
 
@@ -34,19 +35,13 @@ packages/programs/runtimes installed:
 - Oracle's VirtualBox with the following VMs setup:
   * Microsoft Windows Server 2012 w/ SQL Server 2012 Standard Edition installed
     (or any other edition that supports SSAS)
-  * Some Linux distribution running a Hadoop cluster 
+  * Some Linux Distribution running a Hadoop cluster (we chose [Hortonworks Hadoop VM](http://hortonworks.com/products/hortonworks-sandbox/)) 
 
 
 *Note: We're probably going to play it safe here and install Hadoop on the same VM that we're running our SQL Server on, aka 'Hadoop on Windows'. In case we manage to setup everything and feel comfortable with moving on, we may even setup Hadoop on some kind of cloud service (probably a small AWS EC2 instance). We're not trying to get you people pumped up or anything though, so take everything we say with a grain of salt...*
 
 
-To build everything, `git clone` or download and extract a ZIP of the repository
-in a folder and try to follow along the steps described below.  This is not 
-meant to be a proper step-by-step guide, however most of the tools and 
-procedures that are being used are pretty straightforward (everything that we 
-run is just scripts, so if you find something that doesn't work as you expected 
-you can just see for yourself what happens inside the script, there is no 
-recompile or build required). 
+To build everything, `git clone` or download and extract a ZIP of the repository in a folder and try to follow along the steps described below.  This is not meant to be a proper step-by-step guide, however most of the tools and procedures that are being used are pretty straightforward (everything that we run is just scripts, so if you find something that doesn't work as you expected you can just see for yourself what happens inside the script, there is no recompile or build required).
 
 We assume that all of these scripts/tools are being run from a user that has 
 access to the related resources (Databases, Files, Internet Connection, etc.)
@@ -196,18 +191,30 @@ valid data to the final Votes table.  The temporary votes table was then dropped
 - SSAS Schema/Cubes
 
 
-## 4. MDX Queries and Other Methods
+## 4. Other Big Data Analysis Methods
+Data Mining with MSSQL Analysis Services comes pretty easy, since most of the "dirty" work has already been done by the so-called "Microsoft Data Mining Algorithms", which are actually just implementations of popular and commonly used data mining algorithms, built in the SSAS. We are going to adapt our dataset to various data mining algorithms, and try to extract results and any useful information from them.
 
-...
+### Decision Trees
+For our dataset we could mine our data to build various decision trees, about the behaviour and events of users and their posts at a StackExchange website.  We are going to examine the decision tree that leads to a Question Post to arrive at the point of having a successful Answer Post. By successful, we mean that a particular Answer has been chosen by the Original Poster of the Question as the *Accepted Answer*.
 
+(Screenshot 1)
+(Screenshot 2)
+(Screenshot 3)
+(Screenshot 4)
+(Screenshot 5)
 
-## 5. Other Big Data Analysis Methods
+### Clustering
+StackExchange websites usually have already categorized their users through the process of awarding them with "Badges".  In order to simulate this behaviour we are going to actually data mine the users and try to detect patterns and groups of users based on their popularity and the quality/quantity of their posts, and thus create our own set of "Badges".
 
-- Categorization
-- Regression
-- Clustering
- 
+(Screenshot 1) 
+(Screenshot 2) 
+(Screenshot 3) 
+(Screenshot 4) 
+(Screenshot 5) 
 
-## 6. MapReduce Jobs
+## 5. MapReduce Jobs
 
 - Hadoop & Spark! :)
+
+
+
